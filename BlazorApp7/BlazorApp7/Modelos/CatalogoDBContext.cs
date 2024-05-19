@@ -10,5 +10,9 @@ namespace BlazorApp7.Modelos
         }
 
         public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Piloto> Pilotos { get; set; }
+        public DbSet<ArmoredCore> ArmoredCores { get; set; }
+        public DbSet<Parte> Partes { get; set; }
+        public DbSet<Mision> Misiones { get; set; }
     }
 }

@@ -1,4 +1,3 @@
-using BlazorApp7.Client.Pages;
 using BlazorApp7.Components;
 using BlazorApp7.Modelos;
 using BlazorApp7.Repositorio;
@@ -10,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<CatalogoDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IRepositorioEmpresas, RepositorioEmpresas>();
+builder.Services.AddScoped<IRepositorioPilotos, RepositorioPilotos>();
+builder.Services.AddScoped<IRepositorioArmoredCores, RepositorioArmoredCores>();
+builder.Services.AddScoped<IRepositorioPartes, RepositorioPartes>();
+builder.Services.AddScoped<IRepositorioMisiones, RepositorioMisiones>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
