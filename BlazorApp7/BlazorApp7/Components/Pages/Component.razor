@@ -1,0 +1,71 @@
+﻿﻿
+@page "/empresas/nueva"
+@page "/empresas/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioEmpresas _repositorio;
+<h2>@_mensaje Empresa</h2>
+<EditForm Model="_empresa" FormName="frmEmpresa" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_empresa.Nombre" />
+            <ValidationMessage For="()=>_empresa.Nombre" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtSede" class="col-2 col-form-label">Sede</label>
+        <div class="col-10">
+            <InputText id="txtSede" class="form-control" @bind-Value="_empresa.Sede" />
+            <ValidationMessage For="()=>_empresa.Sede" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtOcupación" class="col-2 col-form-label">Ocupación</label>
+        <div class="col-10">
+            <InputText id="txtOcupación" class="form-control" @bind-Value="_empresa.Ocupación" />
+            <ValidationMessage For="()=>_empresa.Ocupación" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Empresa? _empresa = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _empresa = await _repositorio.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Neva";
+        }
+    }
+
+    private async void Guardar()
+    {
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _empresa!);
+        }
+        else
+        {
+            await _repositorio.Add(_empresa!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/empresas");
+    }
+}
