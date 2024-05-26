@@ -5,7 +5,6 @@ namespace Catalogo.Modelos
     {
         public int Id { get; set; }
         public required Empresa Empresa { get; set; }
-        public int IDEmpresa { get; set; }
         [Required(ErrorMessage = "El nombre de la parte es requerido")]
         [StringLength(100, ErrorMessage = "Máximo 100 caracteres")]
         public string? Nombre { get; set; }

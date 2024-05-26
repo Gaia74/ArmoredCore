@@ -16,6 +16,5 @@ namespace Catalogo.Modelos
 
         [Required(ErrorMessage ="El id es necesaria")]
         public required Empresa Empresa { get; set; }
-        public int IDEmpresa { get; set; }
     }
 }
