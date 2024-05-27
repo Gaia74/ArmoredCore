@@ -46,7 +46,7 @@ namespace Catalogo.Repositorio
             var misionactual = await _context.Misiones.FindAsync(id);
             if (misionactual != null)
             {
-                misionactual.IDPiloto = mision.IDPiloto;
+                misionactual.Piloto = mision.Piloto;
                 misionactual.Nombre = mision.Nombre;
                 misionactual.Descripcion = mision.Descripcion;
                 misionactual.Recompensa = mision.Recompensa;

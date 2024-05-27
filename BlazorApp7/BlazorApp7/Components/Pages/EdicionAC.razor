@@ -1,0 +1,85 @@
+﻿﻿
+@page "/armoredcores/nueva"
+@page "/armoredcores/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioArmoredCores _repositorio;
+<h2>@_mensaje Armored Core</h2>
+<EditForm Model="_ac" FormName="frmEmpresa" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_ac.Nombre" />
+            <ValidationMessage For="()=>_ac.Nombre" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtArmaIzq" class="col-2 col-form-label">Arma Izquierda</label>
+        <div class="col-10">
+            <InputText id="txtArmaIzq" class="form-control" @bind-Value="_ac.ArmaIzq" />
+            <ValidationMessage For="()=>_ac.ArmaIzq" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtArmDer" class="col-2 col-form-label">Arma Derecha</label>
+        <div class="col-10">
+            <InputText id="ArmDer" class="form-control" @bind-Value="_ac.ArmaDer" />
+            <ValidationMessage For="()=>_ac.ArmaDer" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtHombroIzq" class="col-2 col-form-label">Hombro Izquierdo</label>
+        <div class="col-10">
+            <InputText id="txtHombroIzq" class="form-control" @bind-Value="_ac.HombroIzq" />
+            <ValidationMessage For="()=>_ac.HombroIzq" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtHombroDer" class="col-2 col-form-label">Hombro Derecho</label>
+        <div class="col-10">
+            <InputText id="txtHombroDer" class="form-control" @bind-Value="_ac.HombroDer" />
+            <ValidationMessage For="()=>_ac.HombroDer" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private ArmoredCore? _ac = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _ac = await _repositorio.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Nuevo";
+        }
+    }
+
+    private async void Guardar()
+    {
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _ac!);
+        }
+        else
+        {
+            await _repositorio.Add(_ac!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/ArmoredCore");
+    }
+}

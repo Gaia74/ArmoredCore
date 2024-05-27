@@ -49,7 +49,7 @@ namespace Catalogo.Repositorio
                 pilotoactual.Nombre = piloto.Nombre;
                 pilotoactual.Ocupación = piloto.Ocupación;
                 pilotoactual.RangoArena = piloto.RangoArena;
-                pilotoactual.IDEmpresa = piloto.IDEmpresa;
+                pilotoactual.Empresa = piloto.Empresa;
                 await _context.SaveChangesAsync();
             }
         }

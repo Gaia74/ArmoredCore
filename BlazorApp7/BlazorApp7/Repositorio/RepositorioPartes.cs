@@ -46,7 +46,7 @@ namespace Catalogo.Repositorio
             var parteactual = await _context.Partes.FindAsync(id);
             if (parteactual != null)
             {
-                parteactual.IDEmpresa = parte.IDEmpresa;
+                parteactual.Empresa = parte.Empresa;
                 parteactual.Nombre = parte.Nombre;
                 parteactual.Posicion = parte.Posicion;
                 parteactual.TipoArma = parte.TipoArma;
