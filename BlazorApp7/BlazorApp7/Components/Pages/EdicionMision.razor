@@ -1,0 +1,107 @@
+﻿﻿
+@page "/misiones/nueva"
+@page "/misiones/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioMisiones _repositorio;
+@inject IRepositorioPilotos _repositoriopilotos;
+<h2>@_mensaje Mision</h2>
+<EditForm Model="_Mision" FormName="frmEmpresa" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_Mision.Nombre" />
+            <ValidationMessage For="()=>_Mision.Nombre" />
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <label for="acID" class="col-2 col-form-label">Piloto</label>
+        <div class="col-10">
+            <InputSelect class="form-control" id="acID" @bind-Value="selectedPilotoId" @onchange="HandlePilotoChange">
+                <option value="0" disabled>Seleccione un piloto a cargo...</option>
+                @foreach (var p in _pilotos)
+                {
+                    <option value="@p.Id">@p.Nombre</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _Mision.Piloto)" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="txtDescripcion" class="col-2 col-form-label">Descripción</label>
+        <div class="col-10">
+            <InputText id="Descripcion" class="form-control" @bind-Value="_Mision.Descripcion" />
+            <ValidationMessage For="()=>_Mision.Descripcion" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtRecompensa" class="col-2 col-form-label">Recompensa</label>
+        <div class="col-10">
+            <InputText id="txtRecompensa" class="form-control" @bind-Value="_Mision.Recompensa" />
+            <ValidationMessage For="()=>_Mision.Recompensa" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Mision? _Mision = new();
+    private List<Piloto>? _pilotos = new();
+    private int selectedPilotoId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _Mision = await _repositorio.Get(Id) ?? new Mision { Piloto = new Piloto() };
+            _mensaje = "Modificar";
+            selectedPilotoId = _Mision.Piloto?.Id ?? 0;
+        }
+        else
+        {
+            _Mision = new Mision { Piloto = new Piloto() };
+            _mensaje = "Nueva";
+        }
+
+        _pilotos = await _repositoriopilotos.GetAll();
+    }
+
+    private async void Guardar()
+    {
+        _Mision.Piloto = _pilotos.FirstOrDefault(p => p.Id == selectedPilotoId);
+
+        if (_Mision == null) return;
+        if (_Mision.Piloto == null) return;
+
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _Mision!);
+        }
+        else
+        {
+            await _repositorio.Add(_Mision!);
+        }
+        Cancelar();
+    }
+
+    private void HandlePilotoChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int id))
+        {
+            selectedPilotoId = id;
+            _Mision.Piloto = _pilotos.FirstOrDefault(e => e.Id == id);
+        }
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/Misiones");
+    }
+}

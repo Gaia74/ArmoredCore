@@ -4,7 +4,7 @@ namespace Catalogo.Modelos
     public class Mision
     {
         public int Id { get; set; }
-        public required Piloto Piloto { get; set; }
+        public Piloto? Piloto { get; set; }
         [Required(ErrorMessage = "El nombre de la mision es requerido")]
         [StringLength(100, ErrorMessage = "Máximo 100 caracteres")]
         public string? Nombre { get; set; }
