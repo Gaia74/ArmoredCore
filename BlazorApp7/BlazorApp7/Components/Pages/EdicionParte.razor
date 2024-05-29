@@ -1,0 +1,107 @@
+﻿﻿
+@page "/Partes/nueva"
+@page "/Partes/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioPartes _repositorio;
+@inject IRepositorioEmpresas _repositorioempresas;
+<h2>@_mensaje Parte de Armored Core</h2>
+<EditForm Model="_parte" FormName="frmEmpresa" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="row mb-3">
+        <label for="empresaID" class="col-2 col-form-label">Empresa</label>
+        <div class="col-10">
+            <InputSelect class="form-control" id="acID" @bind-Value="selectedEmpresaId" @onchange="HandleEmpresaChange">
+                <option value="0" disabled>Seleccione una empresa...</option>
+                @foreach (var e in _empresas)
+                {
+                    <option value="@e.Id">@e.Nombre</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _parte.Empresa)" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_parte.Nombre" />
+            <ValidationMessage For="()=>_parte.Nombre" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtPosicion" class="col-2 col-form-label">Posición</label>
+        <div class="col-10">
+            <InputText id="Posicion" class="form-control" @bind-Value="_parte.Posicion" />
+            <ValidationMessage For="()=>_parte.Posicion" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtTipoArma" class="col-2 col-form-label">Tipo de arma</label>
+        <div class="col-10">
+            <InputText id="txtTipoArma" class="form-control" @bind-Value="_parte.TipoArma" />
+            <ValidationMessage For="()=>_parte.TipoArma" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Parte? _parte = new();
+    private List<Empresa>? _empresas = new();
+    private int selectedEmpresaId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _parte = await _repositorio.Get(Id) ?? new Parte { Empresa = new Empresa() };
+            selectedEmpresaId = _parte.Empresa?.Id ?? 0;
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _parte = new Parte { Empresa = new Empresa() };
+            _mensaje = "Nueva";
+        }
+
+        _empresas = await _repositorioempresas.GetAll();
+    }
+
+    private async void Guardar()
+    {
+        _parte.Empresa = _empresas.FirstOrDefault(e => e.Id == selectedEmpresaId);
+
+        if (_parte == null) return;
+        if (_parte.Empresa == null) return;
+
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _parte);
+        }
+        else
+        {
+            await _repositorio.Add(_parte);
+        }
+        Cancelar();
+    }
+
+    private void HandleEmpresaChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int id))
+        {
+            selectedEmpresaId = id;
+            _parte.Empresa = _empresas.FirstOrDefault(e => e.Id == id);
+        }
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/Partes");
+    }
+}
