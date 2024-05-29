@@ -50,6 +50,7 @@ namespace Catalogo.Repositorio
                 pilotoactual.Ocupación = piloto.Ocupación;
                 pilotoactual.RangoArena = piloto.RangoArena;
                 pilotoactual.Empresa = piloto.Empresa;
+                pilotoactual.ArmoredCore = piloto.ArmoredCore;
                 await _context.SaveChangesAsync();
             }
         }

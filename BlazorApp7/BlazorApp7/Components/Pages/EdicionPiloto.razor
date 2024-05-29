@@ -1,0 +1,138 @@
+﻿﻿
+@page "/pilotos/nueva"
+@page "/pilotos/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioPilotos _repositoriopiloto;
+@inject IRepositorioEmpresas _repositorioempresa;
+@inject IRepositorioArmoredCores _repositorioac;
+
+<h2>@_mensaje Piloto</h2>
+<EditForm Model="_piloto" FormName="frmPiloto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_piloto.Nombre" />
+            <ValidationMessage For="() =>_piloto.Nombre" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtOcupación" class="col-2 col-form-label">Ocupación</label>
+        <div class="col-10">
+            <InputText id="txtOcupación" class="form-control" @bind-Value="_piloto.Ocupación" />
+            <ValidationMessage For="()=>_piloto.Ocupación" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="txtRangoArena" class="col-2 col-form-label">Rango de Arena</label>
+        <div class="col-10">
+            <InputText id="txtRangoArena" class="form-control" @bind-Value="_piloto.RangoArena" />
+            <ValidationMessage For="() =>_piloto.RangoArena" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="empresaID" class="col-2 col-form-label">Empresa</label>
+        <div class="col-10">
+            <InputSelect class="form-control" id="acID" @bind-Value="selectedEmpresaId" @onchange="HandleEmpresaChange">
+                <option value="0" disabled>Seleccione una empresa...</option>
+                @foreach (var e in _empresas)
+                {
+                    <option value="@e.Id">@e.Nombre</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _piloto.Empresa)" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="acID" class="col-2 col-form-label">Armored Core</label>
+        <div class="col-10">
+            <InputSelect class="form-control" id="acID" @bind-Value="selectedArmoredCoreId" @onchange="HandleArmoredCoreChange">
+                <option value="0" disabled>Seleccione un Armored Core...</option>
+                @foreach (var ac in _armoredcores)
+                {
+                    <option value="@ac.Id">@ac.Nombre</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _piloto.ArmoredCore)" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private List<Empresa>? _empresas = new();
+    private List<ArmoredCore>? _armoredcores = new();
+    private string _mensaje = "";
+    private Piloto? _piloto = new();
+    private int selectedEmpresaId;
+    private int selectedArmoredCoreId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _piloto = await _repositoriopiloto.Get(Id) ?? new Piloto { Empresa = new Empresa(), ArmoredCore = new ArmoredCore() };
+            _mensaje = "Modificar";
+            selectedEmpresaId = _piloto.Empresa?.Id ?? 0;
+            selectedArmoredCoreId = _piloto.ArmoredCore?.Id ?? 0;
+        }
+        else
+        {
+            _piloto = new Piloto { Empresa = new Empresa(), ArmoredCore = new ArmoredCore() };
+            _mensaje = "Nuevo";
+        }
+
+        _empresas = await _repositorioempresa.GetAll();
+        _armoredcores = await _repositorioac.GetAll();
+    }
+
+    private async void Guardar()
+    {
+        _piloto.ArmoredCore = _armoredcores.FirstOrDefault(ac => ac.Id == selectedArmoredCoreId);
+        _piloto.Empresa = _empresas.FirstOrDefault(e => e.Id == selectedEmpresaId);
+
+        if (_piloto == null) return;
+        if (_piloto.ArmoredCore == null) return;
+        if (_piloto.Empresa == null) return;
+
+        if (Id > 0)
+        {
+            await _repositoriopiloto.Update(Id, _piloto);
+        }
+        else
+        {
+            await _repositoriopiloto.Add(_piloto);
+        }
+        Cancelar();
+    }
+
+    private void HandleArmoredCoreChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int id))
+        {
+            selectedArmoredCoreId = id;
+            _piloto.ArmoredCore = _armoredcores.FirstOrDefault(ac => ac.Id == id);
+        }
+    }
+
+    private void HandleEmpresaChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int id))
+        {
+            selectedEmpresaId = id;
+            _piloto.Empresa = _empresas.FirstOrDefault(e => e.Id == id);
+        }
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/pilotos");
+    }
+}
